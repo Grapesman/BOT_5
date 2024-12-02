@@ -1,8 +1,10 @@
 from openpyxl import load_workbook
-import requests, os, datetime
+import os, datetime, warnings
 from dotenv import load_dotenv
 load_dotenv()
-
+global check_state_in_dict
+global date_check_make_in_dict
+global date_state_3m
 def function2():
     # # СПИСОК ДЛЯ РЕАЛИЗАЦИИ 2 КОМАНДЫ
     a = []
@@ -110,6 +112,8 @@ def function2():
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------ВЫПОЛНЕНИЕ ФУНКЦИЙ ДЛЯ 2 КОМАНДЫ--------------------------------------------
+
+    warnings.filterwarnings("ignore", category=UserWarning)
 
     # Считаем количество строк в файле по листу "Каталог статей"
     stroki = how_much_string(os.getenv('SAVE_PATH'))

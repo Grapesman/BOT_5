@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import datetime, io
 
+global buf
 def graf(check_state_in_dict, date_check_make_in_dict, date_state_3m):
     # Создаем датафрейм для построения графика
     global buf
@@ -58,7 +59,7 @@ def graf(check_state_in_dict, date_check_make_in_dict, date_state_3m):
     plt.title('ДК написания статей', pad=10, x=-0.4, y=1.0, fontsize=12)
 
     # Настраиваем ось X для отображения дат
-    xticks = pd.date_range(start=aaa, end=bbb, freq='1ME')
+    xticks = pd.date_range(start=aaa, end=bbb, freq='1M')
     ax.set_xticks((xticks - start_date_for_diagr).days)
     ax.set_xticklabels(xticks.strftime('%Y-%m-%d'), rotation=90, fontsize=6)
     # Вывод графика

@@ -4,18 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d02a3798-3009-42fa-8b12-9766e9eddea6" name="Changes" comment="Добавление файлов">
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/BOT.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/BOT.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="d02a3798-3009-42fa-8b12-9766e9eddea6" name="Changes" comment="Изменение бота от 30.10.2024">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BOT_5/Functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/BOT_5/Function1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BOT_5/Graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/BOT_5/Graph.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BOT_5/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/BOT_5/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BOT_5/Table_Таблица статей.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/BOT_5/Telegram.py" beforeDir="false" afterPath="$PROJECT_DIR$/BOT_5/Function2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BOT_5/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/BOT_5/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -85,11 +75,20 @@
       <option name="project" value="LOCAL" />
       <updated>1729605842381</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Изменение бота от 30.10.2024">
+      <option name="closed" value="true" />
+      <created>1730314108581</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1730314108581</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Добавление файлов" />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавление файлов" />
+    <MESSAGE value="Изменение бота от 30.10.2024" />
+    <option name="LAST_COMMIT_MESSAGE" value="Изменение бота от 30.10.2024" />
   </component>
 </project>
