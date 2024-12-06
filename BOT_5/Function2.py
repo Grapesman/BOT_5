@@ -5,7 +5,7 @@ load_dotenv()
 global check_state_in_dict
 global date_check_make_in_dict
 global date_state_3m
-def function2():
+async def function2():
     # # СПИСОК ДЛЯ РЕАЛИЗАЦИИ 2 КОМАНДЫ
     a = []
     list_date_states = []  # Список для парсинга дат публикации статей с листа "Каталог статей"
@@ -146,3 +146,4 @@ def function2():
     # Переводим списки дат создания и публикации из формата date в формат datetime
     date_check_make_in_dict = [dt.date() for dt in check_make_in_dict]
     date_state_3m = [dt.date() for dt in state_3m]
+    return check_state_in_dict, date_check_make_in_dict, date_state_3m

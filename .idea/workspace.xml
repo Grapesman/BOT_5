@@ -4,8 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d02a3798-3009-42fa-8b12-9766e9eddea6" name="Changes" comment="Изменение бота от 30.10.2024">
+    <list default="true" id="d02a3798-3009-42fa-8b12-9766e9eddea6" name="Changes" comment="Изменение бота от 2.12.2024">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BOT_5/Function1.py" beforeDir="false" afterPath="$PROJECT_DIR$/BOT_5/Function1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BOT_5/Function2.py" beforeDir="false" afterPath="$PROJECT_DIR$/BOT_5/Function2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BOT_5/Graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/BOT_5/Graph.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BOT_5/Yandex_disk.py" beforeDir="false" afterPath="$PROJECT_DIR$/BOT_5/Yandex_disk.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BOT_5/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/BOT_5/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,12 +89,21 @@
       <option name="project" value="LOCAL" />
       <updated>1730314108581</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Изменение бота от 2.12.2024">
+      <option name="closed" value="true" />
+      <created>1733147654368</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1733147654368</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Добавление файлов" />
     <MESSAGE value="Изменение бота от 30.10.2024" />
-    <option name="LAST_COMMIT_MESSAGE" value="Изменение бота от 30.10.2024" />
+    <MESSAGE value="Изменение бота от 2.12.2024" />
+    <option name="LAST_COMMIT_MESSAGE" value="Изменение бота от 2.12.2024" />
   </component>
 </project>

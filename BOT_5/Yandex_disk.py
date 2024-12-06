@@ -1,6 +1,6 @@
-import yadisk, requests
+import requests
 # Функция для получения файла с Яндекс-Диска
-def download_file_from_yandex_disk(token, directory, save_path):
+async def download_file_from_yandex_disk(token, directory, save_path):
     url = f'https://cloud-api.yandex.net/v1/disk/resources/download?path={directory}'
     headers = {'Authorization': f'OAuth {token}'}
     # Получаем ссылку для скачивания файла

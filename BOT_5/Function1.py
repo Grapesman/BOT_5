@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 global all_teg
 global names_state
-def function1():
+async def function1():
     # СПИСОК ДЛЯ РЕАЛИЗАЦИИ 1 КОМАНДЫ
     # Вводим списки
     a = [] # Запоминает количество заполненных в таблице строк на листе "Каталог статей"
@@ -263,3 +263,4 @@ def function1():
     without_duplication = remove_duplicates(result)
     # По получившимся фамилиям находим теги из словаря
     all_teg = teg_function(without_duplication) #<--------- это выводим в бот в команде ["status"]
+    return all_teg, names_state
