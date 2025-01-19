@@ -88,11 +88,12 @@ async def function2():
         return date_2_list
 
     # Проверяем, есть ли статьи по данным датам публикации
-    def state_function(checking):
-        for i in range(0, len(checking)):
-            if checking[i] in dict_date_name_state:
-                dic = dict_date_name_state[checking[i]]
-                search_state.append(dic)
+    def state_function(checking, dict_date_name_state):
+        search_state = []  # Не забудьте инициализировать list здесь
+        for dic in checking:
+            for k, v in dict_date_name_state.items():
+                if v == dic:  # Сравниваем значение в dict_date_name_state с элементом checking
+                    search_state.append(k)  # Добавляем ключ из dict_date_name_state
         return search_state
 
     # Запускаем функцию проверки наличия даты создания в словаре по названию статей
@@ -110,6 +111,13 @@ async def function2():
         # Преобразуем обратно в список
         return unique_state_3m
 
+    def publ_function(state):
+        publ_state = []
+        for i in range(0, len(state)):
+            if state[i] in dict_date_name_state:
+                dic = dict_date_name_state[state[i]]
+                publ_state.append(dic)
+        return publ_state
 # ----------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------ВЫПОЛНЕНИЕ ФУНКЦИЙ ДЛЯ 2 КОМАНДЫ--------------------------------------------
 
@@ -127,7 +135,7 @@ async def function2():
     MAKE = make_check(os.getenv('SAVE_PATH'))
 
     # Объединяем в словарь список дат публикации статей и их названия
-    dict_date_name_state = dict(zip(DATA, STATE))
+    dict_date_name_state = dict(zip(STATE, DATA))
     # Объединяем в словарь список дат создания статей и их названия
     dict_make_name_state = dict(zip(STATE, MAKE))
 
@@ -138,12 +146,16 @@ async def function2():
     state_3m = remove_duplicates_3m(date_2_list)
 
     # Сохраняем список статей по данным датам
-    check_state_in_dict = state_function(state_3m)
-
+    check_state_in_dict_old = state_function(state_3m, dict_date_name_state)
+    # Убираем повторяющиеся названия статей из списка
+    check_state_in_dict = remove_duplicates_3m(check_state_in_dict_old)
     # Находим даты создания статьи по её названию
     check_make_in_dict = make_function(check_state_in_dict)
 
+    # Находим даты публикации статьи по её названию
+    check_publ_in_dict = publ_function(check_state_in_dict)
+
     # Переводим списки дат создания и публикации из формата date в формат datetime
     date_check_make_in_dict = [dt.date() for dt in check_make_in_dict]
-    date_state_3m = [dt.date() for dt in state_3m]
+    date_state_3m = [dt.date() for dt in check_publ_in_dict]
     return check_state_in_dict, date_check_make_in_dict, date_state_3m
