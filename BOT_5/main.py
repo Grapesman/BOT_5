@@ -12,7 +12,7 @@ from aiogram.utils import executor
 from dotenv import load_dotenv
 
 
-import Yandex_disk, Function1, Function2, Graph, Upload_YD, TG_form_save, Old_state
+import Yandex_disk, Function1, Function2, Graph, Upload_YD, TG_form_save, Old_state, Macros_citate
 load_dotenv()
 
 API_TOKEN = os.getenv('TOKEN_bot')
@@ -138,5 +138,40 @@ async def process_authors(message: types.Message, state: FSMContext):
     except:
         await message.reply("Ошибка записи данных на ЯД")
     await state.finish()
+
+# Команда для выполнения подбора статей для цитирования
+class ArticlecitatForm(StatesGroup):
+    name = State()
+@dp.callback_query_handler(lambda c: c.data == "state_states")
+async def add_citat_callback(callback_query: types.CallbackQuery):
+    await bot.answer_callback_query(callback_query.id)
+    await ArticlecitatForm.name.set()
+    await bot.send_message(callback_query.from_user.id, "Введите название статьи:")
+# Обработка заполнения всех полей формы:
+@dp.message_handler(state=ArticlecitatForm.name)
+async def process_title(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data["name"] = message.text
+    await Yandex_disk.download_file_from_yandex_disk(os.getenv('TOKEN'), os.getenv('DIRECTORY'), os.getenv('SAVE_PATH'))
+    await Macros_citate.bibliography_macros_1(os.getenv('SAVE_PATH'), data['name'])
+    from Macros_citate import er_mes_search, er_mes_opub
+    if er_mes_search:
+        await message.reply("Данная статья не найдена. Проверьте соответствие написанного Вами названия с тем названием, которое указано в Таблице статей.")
+    elif er_mes_opub:
+        await message.reply("Данная статья уже опубликована. Подбор статей для цитирования не имеет смысла.")
+    else:
+        from Macros_citate import word_list
+        if word_list:
+            await message.reply("<b>Список возможных статей для цитирования:</b>" + "\n - " + '\n - '.join(word_list),
+                                parse_mode='HTML')
+        else:
+            from Macros_citate import withouht_key
+            if withouht_key:
+                await message.reply("Список ключевых слов у заданной статьи отсутствует")
+            else:
+                await message.reply("Для данной статьи список источников для цитирования не найден.")
+    os.remove('Table_Таблица статей.xlsx')
+    await state.finish()
+
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)

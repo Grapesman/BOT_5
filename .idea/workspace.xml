@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d02a3798-3009-42fa-8b12-9766e9eddea6" name="Changes" comment="Изменение бота от 16.01.2025">
+    <list default="true" id="d02a3798-3009-42fa-8b12-9766e9eddea6" name="Changes" comment="Изменение бота от 19.01.2025">
+      <change afterPath="$PROJECT_DIR$/BOT_5/Macros_citate.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BOT_5/Function2.py" beforeDir="false" afterPath="$PROJECT_DIR$/BOT_5/Function2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BOT_5/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/BOT_5/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,19 +45,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python.Function2.executor&quot;: &quot;Run&quot;,
-    &quot;Python.TG_form.executor&quot;: &quot;Run&quot;,
-    &quot;Python.TG_form_save.executor&quot;: &quot;Run&quot;,
-    &quot;Python.Test form.executor&quot;: &quot;Run&quot;,
-    &quot;Python.dashboard.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.project&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.Function2.executor": "Run",
+    "Python.Macros_citate.executor": "Run",
+    "Python.TG_form.executor": "Run",
+    "Python.TG_form_save.executor": "Run",
+    "Python.Test form.executor": "Run",
+    "Python.dashboard.executor": "Run",
+    "Python.main.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "settings.editor.selected.configurable": "configurable.group.project"
   }
-}</component>
+}]]></component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings module-name="BOT" is-module-sdk="true">
@@ -153,7 +155,15 @@
       <option name="project" value="LOCAL" />
       <updated>1737009062086</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Изменение бота от 19.01.2025">
+      <option name="closed" value="true" />
+      <created>1737291502394</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1737291502394</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -163,6 +173,7 @@
     <MESSAGE value="Изменение бота от 6.12.2024" />
     <MESSAGE value="Изменение бота от 17.12.2024" />
     <MESSAGE value="Изменение бота от 16.01.2025" />
-    <option name="LAST_COMMIT_MESSAGE" value="Изменение бота от 16.01.2025" />
+    <MESSAGE value="Изменение бота от 19.01.2025" />
+    <option name="LAST_COMMIT_MESSAGE" value="Изменение бота от 19.01.2025" />
   </component>
 </project>
