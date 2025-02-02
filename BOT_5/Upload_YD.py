@@ -1,5 +1,8 @@
 import requests
+global UpLOAD
 async def upload_file_to_yandex_disk(oauth_token, file_path, disk_path):
+    global UpLOAD
+    UpLOAD = False
     # Получаем URL для загрузки
     url = 'https://cloud-api.yandex.net/v1/disk/resources/upload'
     headers = {
@@ -26,5 +29,6 @@ async def upload_file_to_yandex_disk(oauth_token, file_path, disk_path):
 
     if response.status_code == 201:
         print('Файл успешно загружен на Яндекс Диск.')
+        UpLOAD = True
     else:
         print(f'Ошибка при загрузке файла: {response.json()}')

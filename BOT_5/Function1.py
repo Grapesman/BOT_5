@@ -55,9 +55,8 @@ async def function1():
 
     # РАЗДЕЛ ДЛЯ 1 КОМАНДЫ: ВЫВОД АВТОРОВ И НАЗВАНИЙ СТАТЕЙ ПРИ НЕЗАПОЛНЕННОЙ ТАБЛИЦЕ
     # Определим количество заполненных строк в файле по фамилиям для листа "Community"
-    def how_much_string_community(file_path):
+    def how_much_string_community(book):
         i = 3
-        book = load_workbook(filename = file_path)
         sheet = book['Community']
         while sheet['B' + str(i)].value is not None:
             b.append(i)
@@ -65,9 +64,8 @@ async def function1():
         return
 
     # Функция создания словаря при парсинге Фамилий и тегов
-    def make_dict(file_path):
+    def make_dict(book):
         global dict_name_tegs
-        book = load_workbook(filename = file_path)
         sheet = book['Community']
         for i in range(3, len(b)+3):
             if sheet['B' + str(i)].value is not None and sheet['O' + str(i)].value is not None:
@@ -79,9 +77,8 @@ async def function1():
         return dict_name_tegs
 
     # Функция определения количества заполненных строк. Определяем по столбцу "A" с нумерацией для листа "Каталог статей"
-    def how_much_string(file_path):
+    def how_much_string(book):
         i = 1
-        book = load_workbook(filename = file_path)
         sheet = book['Каталог статей']
         while sheet['A' + str(i)].value is not None:
             a.append(i)
@@ -90,8 +87,7 @@ async def function1():
 
     # 1-Е УСЛОВИЕ. ЕСТЬ АВТОР, НО НЕТ НАЗВАНИЯ
     # Функция находит строки по данному условию и сохраняет список Авторов
-    def f_FIOs_without_name(file_path):
-        book = load_workbook(filename = file_path)
+    def f_FIOs_without_name(book):
         sheet = book['Каталог статей']
         for i in range (2, len(a)+1):
             #Записал так, так как пустых строк нет, а есть непонятные символы - впоследствии исправим только на пустые строки
@@ -115,8 +111,7 @@ async def function1():
 
     # 2-Е УСЛОВИЕ. ЕСТЬ АВТОР, НО НЕТ ДАТЫ ПУБЛИКАЦИИ
     # Функция находит строки по данному условию и сохраняет список Авторов
-    def f_FIOs_without_date(file_path):
-        book = load_workbook(filename = file_path)
+    def f_FIOs_without_date(book):
         sheet = book['Каталог статей']
         for i in range (2, len(a)+1):
             #Записал так, так как пустых строк нет, а есть непонятные символы - впоследствии исправим
@@ -140,8 +135,7 @@ async def function1():
 
     # 3-Е УСЛОВИЕ. ЕСТЬ АВТОР, НО НЕТ ТЕЗИСА
     # Функция находит строки по данному условию и сохраняет список Авторов
-    def f_FIOs_without_thesis(file_path):
-        book = load_workbook(filename = file_path)
+    def f_FIOs_without_thesis(book):
         sheet = book['Каталог статей']
         for i in range (2, len(a)+1):
             #Записал так, так как пустых строк нет, а есть непонятные символы - впоследствии исправим
@@ -165,8 +159,7 @@ async def function1():
 
     # 4-Е УСЛОВИЕ. ЕСТЬ АВТОР, НО НЕТ КЛЮЧЕВЫХ СЛОВ
     # Функция находит строки по данному условию и сохраняет список Авторов
-    def f_FIOs_without_key(file_path):
-        book = load_workbook(filename = file_path)
+    def f_FIOs_without_key(book):
         sheet = book['Каталог статей']
         for i in range (2, len(a)+1):
             #Записал так, так как пустых строк нет, а есть непонятные символы - впоследствии исправим
@@ -210,8 +203,7 @@ async def function1():
 
     # ----------------------------------------------------------------------------------------------------------------------
     # 5-Е УСЛОВИЕ. АВТОРА НЕТ, НО ЕСТЬ НАЗВАНИЕ
-    def f_state_name(file_path):
-        book = load_workbook(filename = file_path)
+    def f_state_name(book):
         sheet = book['Каталог статей']
         for i in range(2, len(a)+1):
             if sheet['H' + str(i)].value is None and sheet['B' + str(i)].value is not None:
@@ -223,39 +215,40 @@ async def function1():
     # ------------------------------------------ВЫПОЛНЕНИЕ ФУНКЦИЙ ДЛЯ 1 КОМАНДЫ--------------------------------------------
 
     warnings.filterwarnings("ignore", category=UserWarning)
+    book = load_workbook(filename=os.getenv('SAVE_PATH'))
 
     # Считаем количество строк в файле по листу "Каталог статей"
-    stroki = how_much_string(os.getenv('SAVE_PATH'))
+    how_much_string(book)
     # Считаем количество строк в файле по листу "Community"
-    stroki_community = how_much_string_community(os.getenv('SAVE_PATH'))
+    how_much_string_community(book)
 
     # Формируем словарь с фамилиями и тегами с листа "Community"
-    data_dict = make_dict(os.getenv('SAVE_PATH'))
+    data_dict = make_dict(book)
 
     # Проверяем поочередно условия для листа "Каталог статей"
     # Проверка первого условия
-    FIOs_without_name = f_FIOs_without_name(os.getenv('SAVE_PATH'))
-    Fs_without_name = f_Fs_without_name(list_FIOs_without_name)
-    Familys_without_name = f_Familys_without_name(list_Fs_without_name)
+    f_FIOs_without_name(book)
+    f_Fs_without_name(list_FIOs_without_name)
+    f_Familys_without_name(list_Fs_without_name)
 
     # Проверка второго условия
-    FIOs_without_date = f_FIOs_without_date(os.getenv('SAVE_PATH'))
-    Fs_without_date = f_Fs_without_date(list_FIOs_without_date)
-    Familys_without_date = f_Familys_without_date(list_Fs_without_date)
+    f_FIOs_without_date(book)
+    f_Fs_without_date(list_FIOs_without_date)
+    f_Familys_without_date(list_Fs_without_date)
 
     # Проверка третьего условия
-    FIOs_without_thesis = f_FIOs_without_thesis(os.getenv('SAVE_PATH'))
-    Fs_without_thesis = f_Fs_without_thesis(list_FIOs_without_thesis)
-    Familys_without_thesis = f_Familys_without_thesis(list_Fs_without_thesis)
+    f_FIOs_without_thesis(book)
+    f_Fs_without_thesis(list_FIOs_without_thesis)
+    f_Familys_without_thesis(list_Fs_without_thesis)
 
     # Проверка четвертого условия
-    FIOs_without_key = f_FIOs_without_key(os.getenv('SAVE_PATH'))
-    Fs_without_key = f_Fs_without_key(list_FIOs_without_key)
-    Familys_without_key = f_Familys_without_key(list_Fs_without_key)
+    f_FIOs_without_key(book)
+    f_Fs_without_key(list_FIOs_without_key)
+    f_Familys_without_key(list_Fs_without_key)
 
     # Проверка пятого условия
     # Поиск статей, с заполненным названием, но без автора
-    names_state = f_state_name(os.getenv('SAVE_PATH')) #<--------- это выводим в бот в команде ["status"]
+    names_state = f_state_name(book) #<--------- это выводим в бот в команде ["status"]
 
     # Объединяем все полученные списки (1-4 условий) с фамилиями в один список
     result = f_result_Familys (list_Familys_without_name, list_Familys_without_date, list_Familys_without_thesis, list_Familys_without_key)

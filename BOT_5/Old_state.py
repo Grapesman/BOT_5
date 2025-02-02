@@ -29,17 +29,15 @@ async def function_old_state():
     # РАЗДЕЛ ДЛЯ 2 КОМАНДЫ: ВЫВОД СТАТЕЙ НА БЛИЖАЙШИЕ 3 МЕСЯЦА
 
     # Функция определения количества заполненных строк. Определяем по столбцу "A" с нумерацией для листа "Каталог статей"
-    def how_much_string(file_path):
+    def how_much_string(book):
         i = 1
-        book = load_workbook(filename = file_path)
         sheet = book['Каталог статей']
         while sheet['A' + str(i)].value is not None:
             a.append(i)
             i+=1
         return
     # функции для парсинга даты публикации с листа "Каталог статей"
-    def date_check(file_path):
-        book = load_workbook(filename=file_path)
+    def date_check(book):
         sheet = book['Каталог статей']
         for i in range(2, len(a) + 1):
             if sheet['D' + str(i)].value is not None and sheet['C' + str(i)].value is not None and sheet['B' + str(i)].value is not None and sheet['K' + str(i)].value != "Опубликована":
@@ -48,8 +46,7 @@ async def function_old_state():
         return list_date_states
 
     # функции для парсинга названия статьи с листа "Каталог статей"
-    def name_check(file_path):
-        book = load_workbook(filename=file_path)
+    def name_check(book):
         sheet = book['Каталог статей']
         for i in range(2, len(a) + 1):
             if sheet['D' + str(i)].value is not None and sheet['C' + str(i)].value is not None and sheet['B' + str(i)].value is not None and sheet['K' + str(i)].value != "Опубликована":
@@ -58,8 +55,7 @@ async def function_old_state():
         return list_name_states
 
     # функции для парсинга даты создания с листа "Каталог статей"
-    def make_check(file_path):
-        book = load_workbook(filename=file_path)
+    def make_check(book):
         sheet = book['Каталог статей']
         for i in range(2, len(a) + 1):
             if sheet['D' + str(i)].value is not None and sheet['C' + str(i)].value is not None and sheet['B' + str(i)].value is not None and sheet['K' + str(i)].value != "Опубликована":
@@ -108,17 +104,18 @@ async def function_old_state():
 # ------------------------------------------ВЫПОЛНЕНИЕ ФУНКЦИЙ ДЛЯ 2 КОМАНДЫ--------------------------------------------
 
     warnings.filterwarnings("ignore", category=UserWarning)
+    book = load_workbook(filename=os.getenv('SAVE_PATH'))
 
     # Считаем количество строк в файле по листу "Каталог статей"
-    stroki = how_much_string(os.getenv('SAVE_PATH'))
+    how_much_string(book)
     # Определяем текущую дату
     x = get_todays_date()
     # Сохраняем список дат публикации статей
-    DATA = date_check(os.getenv('SAVE_PATH'))
+    DATA = date_check(book)
     # Сохраняем названия статей
-    STATE = name_check(os.getenv('SAVE_PATH'))
+    STATE = name_check(book)
     # Сохраняем список дат создания статей
-    MAKE = make_check(os.getenv('SAVE_PATH'))
+    MAKE = make_check(book)
 
     # Объединяем в словарь список дат публикации статей и их названия
     dict_date_name_state = dict(zip(DATA, STATE))
