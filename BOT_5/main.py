@@ -8,7 +8,8 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils import executor
 from dotenv import load_dotenv
 from Keyboard import keyboard
-import Yandex_disk, Function1, Function2, Graph, Upload_YD, TG_form_save, Old_state, Macros_citate
+import Yandex_disk, Function1, Function2, Graph, Upload_YD, TG_form_save, Old_state, Macros_citate, YD_for_add_state
+import asyncio
 load_dotenv()
 
 API_TOKEN = os.getenv('TOKEN_bot')
@@ -21,6 +22,7 @@ bot = Bot(token=API_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
+lock = asyncio.Lock()
 
 async def on_startup(dp):
     await bot.send_message(chat_id= "-1002072987116", text = "БОТ П5 активен.")
@@ -59,7 +61,7 @@ async def notes_states_callback(message: types.Message):
     from Graph import buf
     os.remove('Table_Таблица статей.xlsx')
     try:
-        await bot.send_photo(chat_id=chat_id, photo=buf)
+        await bot.send_photo(chat_id=chat_id, photo=buf, caption = "<b>Дорожная карта статей.</b> Представлены статьи, планируемые к публикации в ближайшие 6 месяцев.",  parse_mode='HTML')
         buf.close()
     except Exception as e:
         print(f"Ошибка при отправке фотографии: {e}")
@@ -94,9 +96,11 @@ async def add_article_callback(message: types.Message):
     keyboard_line_add = InlineKeyboardMarkup(row_width=1)
     keyboard_line_add.add(InlineKeyboardButton("Добавить статью в таблицу", callback_data="add_article"))
     await bot.send_message(message.from_user.id,"Нажмите кнопку, чтобы продолжить", reply_markup=keyboard_line_add)
+    async with lock:
+        await YD_for_add_state.download_file_from_yandex_disk(os.getenv('TOKEN'), os.getenv('DIRECTORY'), os.getenv('SAVE_PATH'))
 
 @dp.callback_query_handler(lambda c: c.data == "add_article")
-async def add_article_callback(callback_query: types.CallbackQuery):
+async def add_article_callback_but(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
     await ArticleForm.title.set()
     await bot.send_message(callback_query.from_user.id, "Введите название статьи:")
@@ -111,10 +115,18 @@ async def process_title(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=ArticleForm.date)
 async def process_date(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data["date"] = datetime.strptime(message.text, "%d.%m.%Y")
-    await ArticleForm.next()
-    await bot.send_message(message.from_user.id,"Введите тезис статьи:")
+    try:
+        async with state.proxy() as data:
+            data["date"] = datetime.strptime(message.text, "%d.%m.%Y")
+        await ArticleForm.next()
+        await bot.send_message(message.from_user.id,"Введите тезис статьи:")
+    except ValueError:
+        await bot.send_message(message.from_user.id,
+                               "Неверный формат даты. Пожалуйста, введите дату в формате ДД.ММ.ГГГГ:")
+        async with state.proxy() as data:
+            data["date"] = datetime.strptime(message.text, "%d.%m.%Y")
+        await ArticleForm.next()
+        await bot.send_message(message.from_user.id, "Введите тезис статьи:")
 
 @dp.message_handler(state=ArticleForm.thesis)
 async def process_thesis(message: types.Message, state: FSMContext):
@@ -128,21 +140,21 @@ async def process_keywords(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["keywords"] = message.text
     await ArticleForm.next()
-    await bot.send_message(message.from_user.id,"Введите имена авторов:")
+    await bot.send_message(message.from_user.id, "Введите имена авторов:")
 
 @dp.message_handler(state=ArticleForm.authors)
 async def process_authors(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["authors"] = message.text
-    await Yandex_disk.download_file_from_yandex_disk(os.getenv('TOKEN'), os.getenv('DIRECTORY'), os.getenv('SAVE_PATH'))
-    await TG_form_save.function_TG_form_save(os.getenv('SAVE_PATH'), os.getenv('SAVE_PATH'), data["title"], data["date"], data["thesis"], data["authors"], data["keywords"])
-    await message.answer("Происходит запись данных")
-    await Upload_YD.upload_file_to_yandex_disk(os.getenv('TOKEN'), os.getenv('SAVE_PATH'), os.getenv('DIRECTORY'))
-    from Upload_YD import UpLOAD
-    if UpLOAD:
-        await message.answer("Данные успешно записаны на ЯД")
-    else:
-        await message.answer("Ошибка записи данных на ЯД. Попробуйте повторить попытку позже.")
+    async with lock:
+        await TG_form_save.function_TG_form_save(os.getenv('SAVE_PATH'), os.getenv('SAVE_PATH'), data["title"], data["date"], data["thesis"], data["authors"], data["keywords"])
+        await message.answer("Происходит запись данных")
+        await Upload_YD.upload_file_to_yandex_disk(os.getenv('TOKEN'), os.getenv('SAVE_PATH'), os.getenv('DIRECTORY'))
+        from Upload_YD import UpLOAD
+        if UpLOAD:
+            await message.answer("Данные успешно записаны на Яндекс Диск")
+        else:
+            await message.answer("Ошибка записи данных на Яндекс Диск. Попробуйте повторить попытку позже.")
     os.remove('Table_Таблица статей.xlsx')
     await state.finish()
 
@@ -159,31 +171,32 @@ async def add_citat_callback(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
     await ArticlecitatForm.name.set()
     await bot.send_message(callback_query.from_user.id, "Введите название статьи:")
+    await Yandex_disk.download_file_from_yandex_disk(os.getenv('TOKEN'), os.getenv('DIRECTORY'), os.getenv('SAVE_PATH'))
 
 # Обработка заполнения всех полей формы:
 @dp.message_handler(state=ArticlecitatForm.name)
 async def process_title(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["name"] = message.text
-    await Yandex_disk.download_file_from_yandex_disk(os.getenv('TOKEN'), os.getenv('DIRECTORY'), os.getenv('SAVE_PATH'))
-    await Macros_citate.bibliography_macros_1(os.getenv('SAVE_PATH'), data['name'])
-    from Macros_citate import er_mes_search, er_mes_opub
-    user_id = message.from_user.id
-    if er_mes_search:
-        await bot.send_message(user_id,"Данная статья не найдена. Проверьте соответствие написанного Вами названия с тем названием, которое указано в Таблице статей.")
-    elif er_mes_opub:
-        await bot.send_message(user_id,"Данная статья уже опубликована. Подбор статей для цитирования не имеет смысла.")
-    else:
-        from Macros_citate import word_list
-        if word_list:
-            await message.answer("<u><b>Список возможных статей для цитирования:</b></u>" + "\n - " + '\n - '.join(word_list),
-                                parse_mode='HTML')
+    async with lock:
+        await Macros_citate.bibliography_macros_1(os.getenv('SAVE_PATH'), data['name'])
+        from Macros_citate import er_mes_search, er_mes_opub
+        user_id = message.from_user.id
+        if er_mes_search:
+            await bot.send_message(user_id,"Данная статья не найдена. Проверьте соответствие написанного Вами названия с тем названием, которое указано в Таблице статей.")
+        elif er_mes_opub:
+            await bot.send_message(user_id,"Данная статья уже опубликована. Подбор статей для цитирования не имеет смысла.")
         else:
-            from Macros_citate import withouht_key
-            if withouht_key:
-                await bot.send_message(user_id,"Список ключевых слов у заданной статьи отсутствует")
+            from Macros_citate import word_list
+            if word_list:
+                await message.answer("<u><b>Список возможных статей для цитирования:</b></u>" + "\n - " + '\n - '.join(word_list),
+                                    parse_mode='HTML')
             else:
-                await bot.send_message(user_id,"Для данной статьи список источников для цитирования не найден.")
+                from Macros_citate import withouht_key
+                if withouht_key:
+                    await bot.send_message(user_id,"Список ключевых слов у заданной статьи отсутствует")
+                else:
+                    await bot.send_message(user_id,"Для данной статьи список источников для цитирования не найден.")
     os.remove('Table_Таблица статей.xlsx')
     await state.finish()
 

@@ -25,7 +25,7 @@ async def graf(check_state_in_dict, date_check_make_in_dict, date_state_3m):
     # Устанавливаем длину столбца Игрек (названия статей)
     y_positions = range(len(df))
     # Рассчитываем значения оси дат (Икс)
-    start_date_for_diagr = datetime.datetime.today() - datetime.timedelta(days=365)
+    start_date_for_diagr = datetime.datetime.today() - datetime.timedelta(days=180)
     aaa = start_date_for_diagr.strftime('%Y-%m-%d')
     end_date_for_diagr = today + datetime.timedelta(days=180)
     bbb = end_date_for_diagr.strftime('%Y-%m-%d')

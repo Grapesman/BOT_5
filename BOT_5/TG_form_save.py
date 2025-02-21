@@ -23,5 +23,6 @@ async def function_TG_form_save(save_path, file_path, data1, data2, data3, data4
     sheet['H' + str(stroki + 1)].value = data4
     sheet['J' + str(stroki + 1)].value = data5
     sheet['C' + str(stroki + 1)].value = datetime.strptime(today_date, "%d.%m.%Y")
+    print("Данные успешно записаны в файл")
     # Сохранение изменений в файле
     book.save(file_path)
