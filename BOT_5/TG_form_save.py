@@ -16,7 +16,7 @@ async def function_TG_form_save(save_path, file_path, data1, data2, data3, data4
     stroki = how_much_string(file_path)
     book = load_workbook(save_path)
     sheet = book['Каталог статей']
-    sheet['A' + str(stroki + 1)].value = str(stroki + 2)
+    sheet['A' + str(stroki + 1)].value = str(stroki)
     sheet['B' + str(stroki + 1)].value = data1
     sheet['D' + str(stroki + 1)].value = data2
     sheet['F' + str(stroki + 1)].value = data3

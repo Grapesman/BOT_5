@@ -4,14 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d02a3798-3009-42fa-8b12-9766e9eddea6" name="Changes" comment="Изменение бота от 3.02.2025">
-      <change afterPath="$PROJECT_DIR$/BOT_5/YD_for_add_state.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+    <list default="true" id="d02a3798-3009-42fa-8b12-9766e9eddea6" name="Changes" comment="Изменение бота от 21.02.2025">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BOT_5/Graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/BOT_5/Graph.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BOT_5/TG_form_save.py" beforeDir="false" afterPath="$PROJECT_DIR$/BOT_5/TG_form_save.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BOT_5/Upload_YD.py" beforeDir="false" afterPath="$PROJECT_DIR$/BOT_5/Upload_YD.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BOT_5/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/BOT_5/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -197,7 +191,15 @@
       <option name="project" value="LOCAL" />
       <updated>1738583122569</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Изменение бота от 21.02.2025">
+      <option name="closed" value="true" />
+      <created>1740142648915</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1740142648915</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -222,6 +224,7 @@
     <MESSAGE value="Изменение бота от 23.01.2025" />
     <MESSAGE value="Изменение бота от 2.02.2025" />
     <MESSAGE value="Изменение бота от 3.02.2025" />
-    <option name="LAST_COMMIT_MESSAGE" value="Изменение бота от 3.02.2025" />
+    <MESSAGE value="Изменение бота от 21.02.2025" />
+    <option name="LAST_COMMIT_MESSAGE" value="Изменение бота от 21.02.2025" />
   </component>
 </project>
