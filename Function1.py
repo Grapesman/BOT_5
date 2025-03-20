@@ -1,7 +1,8 @@
-from openpyxl import load_workbook
-import os, warnings
-from dotenv import load_dotenv
-load_dotenv()
+import warnings
+
+from data_manager import DataManager
+
+
 global all_teg
 global names_state
 async def function1():
@@ -215,7 +216,7 @@ async def function1():
     # ------------------------------------------ВЫПОЛНЕНИЕ ФУНКЦИЙ ДЛЯ 1 КОМАНДЫ--------------------------------------------
 
     warnings.filterwarnings("ignore", category=UserWarning)
-    book = load_workbook(filename=os.getenv('SAVE_PATH'))
+    book = await DataManager.get_excel_from_yandex()
 
     # Считаем количество строк в файле по листу "Каталог статей"
     how_much_string(book)

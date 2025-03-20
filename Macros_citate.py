@@ -1,5 +1,5 @@
+from data_manager import DataManager
 
-from openpyxl import load_workbook
 
 global word_list
 global er_mes_opub
@@ -7,8 +7,8 @@ global er_mes_search
 global withouht_key
 
 
-async def bibliography_macros_1(file_path, data_name):
-    book = load_workbook(filename=file_path)
+async def bibliography_macros_1(data_name):
+    book = await DataManager.get_excel_from_yandex()
     sheet = book['Каталог статей']
     start_row = 2
     last_row = sheet.max_row
