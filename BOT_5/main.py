@@ -94,8 +94,6 @@ async def status_states_callback(message: types.Message):
 #Ежедневное сообщение в чат о просроченных статьях и статусе заполнения таблицы статей
 async def send_daily_message():
     try:
-        await Yandex_disk.download_file_from_yandex_disk(os.getenv('TOKEN'), os.getenv('DIRECTORY'),
-                                                         os.getenv('SAVE_PATH'))
         await Old_state.function_old_state()
         from Old_state import check_state_in_dict
         await bot.send_message(settings.TG_NOTIFICATION_ID, "<u><b>Список просроченных статей:</b></u>" + "\n - " + '\n - '.join(
@@ -109,7 +107,6 @@ async def send_daily_message():
         await bot.send_message(-1002370442535,
                                "<u><b>Авторам данных статей необходимо заполнить Таблицу статей:</b></u>" + "\n - " + '\n - '.join(
                                    names_state), parse_mode='HTML')
-        os.remove('Table_Таблица статей.xlsx')
         logging.info("Сообщение отправлено успешно.")
     except Exception as e:
         logging.error(f"Ошибка при отправке сообщения: {e}")
@@ -119,15 +116,10 @@ async def send_daily_message():
 #Еженедельное сообщение в чат ДК
 async def send_weekly_message():
     try:
-        # Ваш код отправки сообщения
-        await Yandex_disk.download_file_from_yandex_disk(os.getenv('TOKEN'),
-                                                         os.getenv('DIRECTORY'),
-                                                         os.getenv('SAVE_PATH'))
         await Function2.function2()
         from Function2 import check_state_in_dict, date_check_make_in_dict, date_state_3m
         await Graph.graf(check_state_in_dict, date_check_make_in_dict, date_state_3m)
         from Graph import buf
-        os.remove('Table_Таблица статей.xlsx')
         try:
             await bot.send_photo(settings.TG_NOTIFICATION_ID, photo=buf,
                                  caption="<b>Дорожная карта статей.</b> Представлены статьи, планируемые к публикации в ближайшие 6 месяцев.",
