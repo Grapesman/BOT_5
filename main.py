@@ -8,6 +8,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils import executor
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 import settings
 import Function1, Function2, Graph, Old_state, Macros_citate
@@ -26,7 +27,10 @@ async def on_startup(dp):
     await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID, text="БОТ П5 активен.")
     await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID, text="Добро пожаловать, выберете действие ниже.",
                            reply_markup=keyboard)
-
+    scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
+    scheduler.add_job(send_weekly_message, 'cron', day_of_week='mon', hour=10, minute=00)
+    scheduler.add_job(send_daily_message, 'cron', day_of_week='mon, wed', hour=11, minute=00)
+    scheduler.start()
 
 async def on_shutdown(dp):
     await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID,
@@ -87,6 +91,45 @@ async def status_states_callback(message: types.Message):
                            parse_mode='HTML')
 
 
+#Ежедневное сообщение в чат о просроченных статьях и статусе заполнения таблицы статей
+async def send_daily_message():
+    try:
+        await Old_state.function_old_state()
+        from Old_state import check_state_in_dict
+        await bot.send_message(settings.TG_NOTIFICATION_ID, "<u><b>Список просроченных статей:</b></u>" + "\n - " + '\n - '.join(
+                               check_state_in_dict), parse_mode='HTML')
+        await Function1.function1()
+        from Function1 import all_teg, names_state
+        if all_teg:
+            await bot.send_message(settings.TG_NOTIFICATION_ID,
+                                   "<u><b>Следующим авторам необходимо заполнить Таблицу статей:</b></u>" + "\n" + '\n'.join(
+                                       all_teg), parse_mode='HTML')
+        await bot.send_message(settings.TG_NOTIFICATION_ID,
+                               "<u><b>Авторам данных статей необходимо заполнить Таблицу статей:</b></u>" + "\n - " + '\n - '.join(
+                                   names_state), parse_mode='HTML')
+        logging.info("Сообщение отправлено успешно.")
+    except Exception as e:
+        logging.error(f"Ошибка при отправке сообщения: {e}")
+
+
+
+#Еженедельное сообщение в чат ДК
+async def send_weekly_message():
+    try:
+        await Function2.function2()
+        from Function2 import check_state_in_dict, date_check_make_in_dict, date_state_3m
+        await Graph.graf(check_state_in_dict, date_check_make_in_dict, date_state_3m)
+        from Graph import buf
+        try:
+            await bot.send_photo(-1002370442535, photo=buf,
+                                 caption="<b>Дорожная карта статей.</b> Представлены статьи, планируемые к публикации в ближайшие 6 месяцев.",
+                                 parse_mode='HTML')
+            buf.close()
+        except Exception as e:
+            print(f"Ошибка при отправке фотографии: {e}")
+        logging.info("Сообщение отправлено успешно.")
+    except Exception as e:
+        logging.error(f"Ошибка при отправке сообщения: {e}")
 # Команда для заполнения ТГ-формы
 # класс для ТГ-формы
 class ArticleForm(StatesGroup):
