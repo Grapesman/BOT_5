@@ -8,6 +8,7 @@ from openpyxl import load_workbook, Workbook
 import settings
 
 
+
 class YandexManager:
     yandex_locker = asyncio.Lock()
 
