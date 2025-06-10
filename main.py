@@ -9,7 +9,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils import executor
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-
+import asyncio
 import settings
 import Function1, Function2, Graph, Old_state, Macros_citate
 from data_manager import DataManager
@@ -22,15 +22,22 @@ bot = Bot(token=settings.TOKEN_bot)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
+scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
+
+async def setup_scheduler():
+    """Настройка и запуск планировщика"""
+    scheduler.add_job(send_weekly_message, 'cron', day_of_week='mon', hour=10, minute=00)
+    scheduler.add_job(send_daily_message, 'cron', day_of_week='mon,wed', hour=11, minute=00)
+    scheduler.start()
+
 
 async def on_startup(dp):
     await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID, text="БОТ П5 активен.")
     await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID, text="Добро пожаловать, выберете действие ниже.",
                            reply_markup=keyboard)
-    scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
-    scheduler.add_job(send_weekly_message, 'cron', day_of_week='mon', hour=10, minute=00)
-    scheduler.add_job(send_daily_message, 'cron', day_of_week='mon, wed', hour=11, minute=00)
-    scheduler.start()
+    # Запуск планировщика в отдельной задаче
+    asyncio.create_task(setup_scheduler())
+
 
 async def on_shutdown(dp):
     await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID,
