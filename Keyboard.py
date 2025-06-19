@@ -5,7 +5,8 @@ b3 = KeyboardButton("Дорожная карта написания статей
 b4 = KeyboardButton("Ссылка на Таблицу статей")
 b5 = KeyboardButton("Просроченные статьи")
 b6 = KeyboardButton("Подбор статей для цитирования")
+b7 = KeyboardButton("Анализ деятельности сообщества")
 keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
 
 # Добавляем кнопки в клавиатуру
-keyboard.add(b1).insert(b2).add(b3).insert(b4).add(b5).insert(b6)
+keyboard.add(b1).insert(b2).add(b3).insert(b4).add(b5).insert(b6).insert(b7)

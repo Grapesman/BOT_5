@@ -11,7 +11,7 @@ from aiogram.utils import executor
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import asyncio
 import settings
-import Function1, Function2, Graph, Old_state, Macros_citate
+import Function1, Function2, Graph, Old_state, Macros_citate, statistic
 from data_manager import DataManager
 
 # Настройка логирования
@@ -85,6 +85,17 @@ async def notes_states_callback(message: types.Message):
 async def notes_states_callback(message: types.Message):
     await bot.send_message(message.from_user.id,
                            "<u><b>Ссылка на заполнение Таблицы статей:</b></u>" + "\n" + "https://disk.yandex.ru/i/MYnqCNHmuaALqA",
+                           parse_mode='HTML')
+
+
+# Команда получения информации Анализа сообщества
+@dp.message_handler(text=["Анализ деятельности сообщества"])
+async def status_states_callback(message: types.Message):
+    await statistic.function_statistic()
+    from statistic import checking, last_checking
+    from statistic import cit_now, cit_last
+    await bot.send_message(message.from_user.id,
+                           "<u><b>Анализ деятельности сообщества за текущие 3 месяца.</b></u>" + "\n" + "Количество опубликованных статей: " + str(checking) + " (за прошлый период: " + str(last_checking) +")"  + "\n" + "Количество цитирований: " + str(cit_now) + " (за прошлый период: " + str(cit_last) +")",
                            parse_mode='HTML')
 
 
