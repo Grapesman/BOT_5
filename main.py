@@ -11,8 +11,9 @@ from aiogram.utils import executor
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import asyncio
 import settings
-import Function1, Function2, Graph, Old_state, Macros_citate, statistic
+import Function1, Function2, Graph, Old_state, Macros_citate, statistic, hirsh
 from data_manager import DataManager
+
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
@@ -27,21 +28,38 @@ scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
 async def setup_scheduler():
     """Настройка и запуск планировщика"""
     scheduler.add_job(send_weekly_message, 'cron', day_of_week='mon', hour=10, minute=00)
-    scheduler.add_job(send_daily_message, 'cron', day_of_week='mon,wed', hour=11, minute=00)
+    scheduler.add_job(send_daily_message, 'cron', day_of_week='mon', hour=11, minute=00)
+    scheduler.add_job(
+        send_analize_message,
+        'cron',
+        month='1,4,7,10',  # январь, апрель, июль, октябрь
+        day=1,
+        hour=10,
+        minute=30
+    )
+
+    scheduler.add_job(
+        send_hirsh_remember_message,
+        'cron',
+        month='1,4,7,10',  # январь, апрель, июль, октябрь
+        day=1,
+        hour=10,
+        minute=20
+    )
     scheduler.start()
 
 
 async def on_startup(dp):
-    await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID, text="БОТ П5 активен.")
-    await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID, text="Добро пожаловать, выберете действие ниже.",
-                           reply_markup=keyboard)
+    # await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID, text="БОТ П5 активен.")
+    # await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID, text="Добро пожаловать, выберете действие ниже.",
+    #                        reply_markup=keyboard)
     # Запуск планировщика в отдельной задаче
     asyncio.create_task(setup_scheduler())
 
 
-async def on_shutdown(dp):
-    await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID,
-                           text="В настоящее время П5 БОТ не работает. Как только работа восстановится - мы вас оповестим.")
+# async def on_shutdown(dp):
+#     await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID,
+#                            text="В настоящее время П5 БОТ не работает.")
 
 
 @dp.message_handler(commands=["start"])
@@ -97,8 +115,48 @@ async def status_states_callback(message: types.Message):
     await bot.send_message(message.from_user.id,
                            "<u><b>Анализ деятельности сообщества за текущие 3 месяца.</b></u>" + "\n" + "Количество опубликованных статей: " + str(checking) + " (за прошлый период: " + str(last_checking) +")"  + "\n" + "Количество цитирований: " + str(cit_now) + " (за прошлый период: " + str(cit_last) +")",
                            parse_mode='HTML')
-
-
+    from statistic import how_much_ratingQ1, how_much_ratingQ2, how_much_ratingQ3, how_much_ratingQ4, how_much_ratingCP, \
+        how_much_ratingVAK, how_much_ratingRINC
+    if how_much_ratingQ1:
+        await bot.send_message(message.from_user.id,
+                               "За текущий квартал количество опубликованных статей рейтинга Q1 составляет: " + str(
+                                   how_much_ratingQ1),
+                               parse_mode='HTML')
+    if how_much_ratingQ2:
+        await bot.send_message(message.from_user.id,
+                               "За текущий квартал количество опубликованных статей рейтинга Q2 составляет: " + str(
+                                   how_much_ratingQ2),
+                               parse_mode='HTML')
+    if how_much_ratingQ3:
+        await bot.send_message(message.from_user.id,
+                               "За текущий квартал количество опубликованных статей рейтинга Q3 составляет: " + str(
+                                   how_much_ratingQ3),
+                               parse_mode='HTML')
+    if how_much_ratingQ4:
+        await bot.send_message(message.from_user.id,
+                               "За текущий квартал количество опубликованных статей рейтинга Q4 составляет: " + str(
+                                   how_much_ratingQ4),
+                               parse_mode='HTML')
+    if how_much_ratingCP:
+        await bot.send_message(message.from_user.id,
+                               "За текущий квартал количество опубликованных статей рейтинга Conference Paper составляет: " + str(
+                                   how_much_ratingCP),
+                               parse_mode='HTML')
+    if how_much_ratingVAK:
+        await bot.send_message(message.from_user.id,
+                               "За текущий квартал количество опубликованных статей рейтинга ВАК составляет: " + str(
+                                   how_much_ratingVAK),
+                               parse_mode='HTML')
+    if how_much_ratingRINC:
+        await bot.send_message(message.from_user.id,
+                               "За текущий квартал количество опубликованных статей рейтинга РИНЦ составляет: " + str(
+                                   how_much_ratingRINC),
+                               parse_mode='HTML')
+    await hirsh.hirsh_function()
+    from hirsh import data_dict
+    if data_dict:
+        await bot.send_message(message.from_user.id,
+                                   "В настоящее время, у " +  str(data_dict) + " членов НСП5 индекс Хирша превышает единицу." , parse_mode='HTML')
 # Команда получения информации с таблицы о просроченных статьях
 @dp.message_handler(text=["Просроченные статьи"])
 async def status_states_callback(message: types.Message):
@@ -108,8 +166,55 @@ async def status_states_callback(message: types.Message):
                            "<u><b>Список просроченных статей:</b></u>" + "\n - " + '\n - '.join(check_state_in_dict),
                            parse_mode='HTML')
 
+# Функция для автоматического формирования сообщения об анализе деятельности сообщества
+async def send_analize_message():
+    await statistic.function_statistic()
+    from statistic import checking, last_checking
+    from statistic import cit_now, cit_last
 
-#Ежедневное сообщение в чат о просроченных статьях и статусе заполнения таблицы статей
+    await bot.send_message(settings.TG_NOTIFICATION_ID,
+                           "<u><b>Анализ деятельности сообщества за текущие 3 месяца.</b></u>" + "\n" + "Количество опубликованных статей: " + str(checking) + " (за прошлый период: " + str(last_checking) +")"  + "\n" + "Количество цитирований: " + str(cit_now) + " (за прошлый период: " + str(cit_last) +")",
+                           parse_mode='HTML')
+    from statistic import how_much_ratingQ1, how_much_ratingQ2, how_much_ratingQ3, how_much_ratingQ4, how_much_ratingCP, \
+        how_much_ratingVAK, how_much_ratingRINC
+    if how_much_ratingQ1:
+        await bot.send_message(settings.TG_NOTIFICATION_ID,
+                               "За текущий квартал количество опубликованных статей рейтинга Q1 составляет: "+str(how_much_ratingQ1),
+                               parse_mode='HTML')
+    if how_much_ratingQ2:
+        await bot.send_message(settings.TG_NOTIFICATION_ID,
+                               "За текущий квартал количество опубликованных статей рейтинга Q2 составляет: "+str(how_much_ratingQ2),
+                               parse_mode='HTML')
+    if how_much_ratingQ3:
+        await bot.send_message(settings.TG_NOTIFICATION_ID,
+                               "За текущий квартал количество опубликованных статей рейтинга Q3 составляет: "+str(how_much_ratingQ3),
+                               parse_mode='HTML')
+    if how_much_ratingQ4:
+        await bot.send_message(settings.TG_NOTIFICATION_ID,
+                               "За текущий квартал количество опубликованных статей рейтинга Q4 составляет: "+str(how_much_ratingQ4),
+                               parse_mode='HTML')
+    if how_much_ratingCP:
+        await bot.send_message(settings.TG_NOTIFICATION_ID,
+                               "За текущий квартал количество опубликованных статей рейтинга Conference Paper составляет: "+str(how_much_ratingCP),
+                               parse_mode='HTML')
+    if how_much_ratingVAK:
+        await bot.send_message(settings.TG_NOTIFICATION_ID,
+                               "За текущий квартал количество опубликованных статей рейтинга ВАК составляет: "+str(how_much_ratingVAK),
+                               parse_mode='HTML')
+    if how_much_ratingRINC:
+        await bot.send_message(settings.TG_NOTIFICATION_ID,
+                               "За текущий квартал количество опубликованных статей рейтинга РИНЦ составляет: "+str(how_much_ratingRINC),
+                               parse_mode='HTML')
+    await hirsh.hirsh_function()
+    from hirsh import data_dict
+    if data_dict:
+        await bot.send_message(settings.TG_NOTIFICATION_ID,
+                                   "В настоящее время, у " +  str(data_dict) + " членов НСП5 индекс Хирша превышает единицу." , parse_mode='HTML')
+# Отправка сообщения о напоминании заполнения своего индекса ХИРШа 1 раз в квартал
+async def send_hirsh_remember_message():
+    await bot.send_message(settings.TG_NOTIFICATION_ID,
+                           "Уважаемые коллеги, прошу вас обновить значение вашего индекса Хирша в таблице статей, на листе Community.")
+# Ежедневное сообщение в чат о просроченных статьях и статусе заполнения таблицы статей
 async def send_daily_message():
     try:
         await Old_state.function_old_state()
@@ -283,4 +388,4 @@ async def process_title(message: types.Message, state: FSMContext):
 
 
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True, on_startup=on_startup, on_shutdown=on_shutdown)
+    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
