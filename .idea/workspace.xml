@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d02a3798-3009-42fa-8b12-9766e9eddea6" name="Changes" comment="1.08.25 Доработка кода, добавление авторассылок">
-      <change afterPath="$PROJECT_DIR$/experts.py" afterDir="false" />
+    <list default="true" id="d02a3798-3009-42fa-8b12-9766e9eddea6" name="Changes" comment="29.09.25 Обработка данных из полей таблицы для построения ДК">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Function2.py" beforeDir="false" afterPath="$PROJECT_DIR$/Function2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/Graph.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -268,7 +268,15 @@
       <option name="project" value="LOCAL" />
       <updated>1754043976939</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="29.09.25 Обработка данных из полей таблицы для построения ДК">
+      <option name="closed" value="true" />
+      <created>1759134143150</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1759134143150</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -299,6 +307,7 @@
     <MESSAGE value="Изменение бота от 10.06.2025. Доработка рассылки" />
     <MESSAGE value="19.06.25 Добавление анализа сообщества" />
     <MESSAGE value="1.08.25 Доработка кода, добавление авторассылок" />
-    <option name="LAST_COMMIT_MESSAGE" value="1.08.25 Доработка кода, добавление авторассылок" />
+    <MESSAGE value="29.09.25 Обработка данных из полей таблицы для построения ДК" />
+    <option name="LAST_COMMIT_MESSAGE" value="29.09.25 Обработка данных из полей таблицы для построения ДК" />
   </component>
 </project>
