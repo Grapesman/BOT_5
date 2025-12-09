@@ -4,26 +4,16 @@ from Keyboard import keyboard
 
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from aiogram import Bot, Dispatcher, types
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram import types
 from aiogram.utils import executor
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import asyncio
+
 import settings
 import Function1, Function2, Graph, Old_state, Macros_citate, statistic, hirsh
+from loader import bot, scheduler, dp
 from data_manager import DataManager
+from notifications import notify_admins
 
-
-# Настройка логирования
-logging.basicConfig(level=logging.INFO)
-
-# Создание объектов бота и диспетчера
-bot = Bot(token=settings.TG_BOT_TOKEN)
-storage = MemoryStorage()
-dp = Dispatcher(bot, storage=storage)
-
-scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
 
 async def setup_scheduler():
     """Настройка и запуск планировщика"""
@@ -46,8 +36,6 @@ async def setup_scheduler():
         hour=10,
         minute=20
     )
-    
-    
     
     scheduler.start()
 
@@ -255,8 +243,8 @@ class ArticleForm(StatesGroup):
 
 @dp.message_handler(text=["Добавить плановую статью"])
 async def add_article_callback(message: types.Message):
-    keyboard_line_add = InlineKeyboardMarkup(row_width=1)
-    keyboard_line_add.add(InlineKeyboardButton("Добавить статью в таблицу", callback_data="add_article"))
+    keyboard_line_add = types.InlineKeyboardMarkup(row_width=1)
+    keyboard_line_add.add(types.InlineKeyboardButton("Добавить статью в таблицу", callback_data="add_article"))
     await bot.send_message(message.from_user.id, "Нажмите кнопку, чтобы продолжить", reply_markup=keyboard_line_add)
 
 
@@ -336,8 +324,8 @@ class ArticlecitatForm(StatesGroup):
 
 @dp.message_handler(text="Подбор статей для цитирования")
 async def add_citat_pre_callback(message: types.Message):
-    keyboard_line_cit = InlineKeyboardMarkup(row_width=1)
-    keyboard_line_cit.add(InlineKeyboardButton("Подобрать статьи для цитирования", callback_data="state_states"))
+    keyboard_line_cit = types.InlineKeyboardMarkup(row_width=1)
+    keyboard_line_cit.add(types.InlineKeyboardButton("Подобрать статьи для цитирования", callback_data="state_states"))
     await bot.send_message(message.from_user.id, "Нажмите кнопку, чтобы продолжить", reply_markup=keyboard_line_cit)
 
 
@@ -378,12 +366,13 @@ async def process_title(message: types.Message, state: FSMContext):
 
 
 async def on_startup(dp):
+    logging.basicConfig(level=logging.INFO)
     asyncio.create_task(setup_scheduler())
-    await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID, text="Включение бота")
+    await notify_admins(message="Бот работает")
 
 
 async def on_shutdown(dp):
-    await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID, text="Остановка бота")
+    await notify_admins(message="Бот остановлен")
 
 
 if __name__ == '__main__':
