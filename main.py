@@ -19,7 +19,7 @@ from data_manager import DataManager
 logging.basicConfig(level=logging.INFO)
 
 # Создание объектов бота и диспетчера
-bot = Bot(token=settings.TOKEN_bot)
+bot = Bot(token=settings.TG_BOT_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
