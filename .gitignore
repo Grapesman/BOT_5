@@ -4,3 +4,4 @@ venv/
 .idea/
 __pycache__/
 telegram_bot_log.txt
+Table_Таблица статей.xlsx
