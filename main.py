@@ -46,20 +46,10 @@ async def setup_scheduler():
         hour=10,
         minute=20
     )
+    
+    
+    
     scheduler.start()
-
-
-async def on_startup(dp):
-    # await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID, text="БОТ П5 активен.")
-    # await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID, text="Добро пожаловать, выберете действие ниже.",
-    #                        reply_markup=keyboard)
-    # Запуск планировщика в отдельной задаче
-    asyncio.create_task(setup_scheduler())
-
-
-# async def on_shutdown(dp):
-#     await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID,
-#                            text="В настоящее время П5 БОТ не работает.")
 
 
 @dp.message_handler(commands=["start"])
@@ -172,62 +162,62 @@ async def send_analize_message():
     from statistic import checking, last_checking
     from statistic import cit_now, cit_last
 
-    await bot.send_message(settings.TG_NOTIFICATION_ID,
+    await bot.send_message(settings.TG_P5_ID,
                            "<u><b>Анализ деятельности сообщества за текущие 3 месяца.</b></u>" + "\n" + "Количество опубликованных статей: " + str(checking) + " (за прошлый период: " + str(last_checking) +")"  + "\n" + "Количество цитирований: " + str(cit_now) + " (за прошлый период: " + str(cit_last) +")",
                            parse_mode='HTML')
     from statistic import how_much_ratingQ1, how_much_ratingQ2, how_much_ratingQ3, how_much_ratingQ4, how_much_ratingCP, \
         how_much_ratingVAK, how_much_ratingRINC
     if how_much_ratingQ1:
-        await bot.send_message(settings.TG_NOTIFICATION_ID,
+        await bot.send_message(settings.TG_P5_ID,
                                "За текущий квартал количество опубликованных статей рейтинга Q1 составляет: "+str(how_much_ratingQ1),
                                parse_mode='HTML')
     if how_much_ratingQ2:
-        await bot.send_message(settings.TG_NOTIFICATION_ID,
+        await bot.send_message(settings.TG_P5_ID,
                                "За текущий квартал количество опубликованных статей рейтинга Q2 составляет: "+str(how_much_ratingQ2),
                                parse_mode='HTML')
     if how_much_ratingQ3:
-        await bot.send_message(settings.TG_NOTIFICATION_ID,
+        await bot.send_message(settings.TG_P5_ID,
                                "За текущий квартал количество опубликованных статей рейтинга Q3 составляет: "+str(how_much_ratingQ3),
                                parse_mode='HTML')
     if how_much_ratingQ4:
-        await bot.send_message(settings.TG_NOTIFICATION_ID,
+        await bot.send_message(settings.TG_P5_ID,
                                "За текущий квартал количество опубликованных статей рейтинга Q4 составляет: "+str(how_much_ratingQ4),
                                parse_mode='HTML')
     if how_much_ratingCP:
-        await bot.send_message(settings.TG_NOTIFICATION_ID,
+        await bot.send_message(settings.TG_P5_ID,
                                "За текущий квартал количество опубликованных статей рейтинга Conference Paper составляет: "+str(how_much_ratingCP),
                                parse_mode='HTML')
     if how_much_ratingVAK:
-        await bot.send_message(settings.TG_NOTIFICATION_ID,
+        await bot.send_message(settings.TG_P5_ID,
                                "За текущий квартал количество опубликованных статей рейтинга ВАК составляет: "+str(how_much_ratingVAK),
                                parse_mode='HTML')
     if how_much_ratingRINC:
-        await bot.send_message(settings.TG_NOTIFICATION_ID,
+        await bot.send_message(settings.TG_P5_ID,
                                "За текущий квартал количество опубликованных статей рейтинга РИНЦ составляет: "+str(how_much_ratingRINC),
                                parse_mode='HTML')
     await hirsh.hirsh_function()
     from hirsh import data_dict
     if data_dict:
-        await bot.send_message(settings.TG_NOTIFICATION_ID,
+        await bot.send_message(settings.TG_P5_ID,
                                    "В настоящее время, у " +  str(data_dict) + " членов НСП5 индекс Хирша превышает единицу." , parse_mode='HTML')
 # Отправка сообщения о напоминании заполнения своего индекса ХИРШа 1 раз в квартал
 async def send_hirsh_remember_message():
-    await bot.send_message(settings.TG_NOTIFICATION_ID,
+    await bot.send_message(settings.TG_P5_ID,
                            "Уважаемые коллеги, прошу вас обновить значение вашего индекса Хирша в таблице статей, на листе Community.")
 # Ежедневное сообщение в чат о просроченных статьях и статусе заполнения таблицы статей
 async def send_daily_message():
     try:
         await Old_state.function_old_state()
         from Old_state import check_state_in_dict
-        await bot.send_message(settings.TG_NOTIFICATION_ID, "<u><b>Список просроченных статей:</b></u>" + "\n - " + '\n - '.join(
+        await bot.send_message(settings.TG_P5_ID, "<u><b>Список просроченных статей:</b></u>" + "\n - " + '\n - '.join(
                                check_state_in_dict), parse_mode='HTML')
         await Function1.function1()
         from Function1 import all_teg, names_state
         if all_teg:
-            await bot.send_message(settings.TG_NOTIFICATION_ID,
+            await bot.send_message(settings.TG_P5_ID,
                                    "<u><b>Следующим авторам необходимо заполнить Таблицу статей:</b></u>" + "\n" + '\n'.join(
                                        all_teg), parse_mode='HTML')
-        await bot.send_message(settings.TG_NOTIFICATION_ID,
+        await bot.send_message(settings.TG_P5_ID,
                                "<u><b>Авторам данных статей необходимо заполнить Таблицу статей:</b></u>" + "\n - " + '\n - '.join(
                                    names_state), parse_mode='HTML')
         logging.info("Сообщение отправлено успешно.")
@@ -387,5 +377,14 @@ async def process_title(message: types.Message, state: FSMContext):
     await state.finish()
 
 
+async def on_startup(dp):
+    asyncio.create_task(setup_scheduler())
+    await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID, text="Включение бота")
+
+
+async def on_shutdown(dp):
+    await bot.send_message(chat_id=settings.TG_NOTIFICATION_ID, text="Остановка бота")
+
+
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
+    executor.start_polling(dp, skip_updates=True, on_startup=on_startup, on_shutdown=on_shutdown)
