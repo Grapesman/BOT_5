@@ -20,6 +20,13 @@ async def setup_scheduler():
     scheduler.add_job(send_weekly_message, 'cron', day_of_week='mon', hour=10, minute=00)
     scheduler.add_job(send_daily_message, 'cron', day_of_week='mon', hour=11, minute=00)
     scheduler.add_job(
+        notify_admins, 
+        'cron', 
+        hour=10, 
+        minute=30,
+        kwargs={"message": "Бот работает"}
+        )
+    scheduler.add_job(
         send_analize_message,
         'cron',
         month='1,4,7,10',  # январь, апрель, июль, октябрь
