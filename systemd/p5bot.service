@@ -1,0 +1,33 @@
+[Unit]
+Description= P5 Community Service
+After=syslog.target
+After=network.target
+
+StartLimitBurst=5
+StartLimitIntervalSec=300
+
+[Service]
+User=p5bot
+Type=simple
+WorkingDirectory=/opt/BOT_5
+ExecStart=/opt/BOT_5/venv/bin/python /opt/BOT_5/main.py
+
+# Resources
+MemoryMax=500M
+MemorySwapMax=500M
+CPUQuota=50%
+TasksMax=50
+
+# Restart
+Restart=always
+RestartSec=5
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/BOT_5
+
+[Install]
+WantedBy=multi-user.target
