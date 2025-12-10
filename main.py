@@ -239,7 +239,7 @@ async def send_weekly_message():
         await Graph.graf(check_state_in_dict, date_check_make_in_dict, date_state_3m)
         from Graph import buf
         try:
-            await bot.send_photo(-1002370442535, photo=buf,
+            await bot.send_photo(settings.TG_P5_ID, photo=buf,
                                  caption="<b>Дорожная карта статей.</b> Представлены статьи, планируемые к публикации в ближайшие 6 месяцев.",
                                  parse_mode='HTML')
             buf.close()
