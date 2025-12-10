@@ -6,6 +6,7 @@ import requests
 from openpyxl import load_workbook, Workbook
 
 import settings
+from logger import logger
 
 
 class YandexManager:
@@ -23,7 +24,6 @@ class YandexManager:
                 file_response = requests.get(download_url)
                 with open(settings.FILE_SAVE_PATH, 'wb') as f:
                     f.write(file_response.content)
-                print(f'Файл загружен и сохранён как {settings.FILE_SAVE_PATH}')
 
             else:
                 raise Exception(f'Ошибка при получении файла: {response.text}')
@@ -38,7 +38,7 @@ class YandexManager:
             # Запрос для получения ссылки для загрузки
             response = requests.get(url, headers=headers, params=params)
             if response.status_code != 200:
-                print(f'Ошибка получения ссылки для загрузки: {response.json()}')
+                logger.error(f'Не удалось получить ссылку для загрузки: {response.json()}')
                 return False
 
             upload_url = response.json().get('href')
@@ -47,10 +47,9 @@ class YandexManager:
             with open(settings.FILE_SAVE_PATH, 'rb') as file:
                 response = requests.put(upload_url, files={'file': file})
             if response.status_code == 201:
-                print('Файл успешно загружен на Яндекс Диск.')
                 return True
             else:
-                print(f'Ошибка при загрузке файла: {response.json()}')
+                logger.error(f'Не удалось загрузить файл: {response.json()}')
                 return False
 
 
@@ -92,7 +91,6 @@ class ExcelManager:
             sheet['C' + str(string_qty + 1)].value = datetime.strptime(today_date, "%d.%m.%Y")
 
             book.save(settings.FILE_SAVE_PATH)
-            print("Данные успешно записаны в файл")
 
 
 class DataManager:
@@ -100,10 +98,12 @@ class DataManager:
 
     @classmethod
     async def get_excel_from_yandex(cls) -> Workbook:
+        logger.info(f"Начинается выполнение запроса данных Excel-таблицы")
         async with cls.data_locker:
             await YandexManager.download_excel_from_yandex()
             book = await ExcelManager.get_excel_book()
             os.remove(settings.FILE_SAVE_PATH)
+        logger.info(f"Данные Excel-файла получены")
         return book
 
     @classmethod
@@ -115,10 +115,12 @@ class DataManager:
             authors: str,
             keywords: str
     ):
+        logger.info(f"Начинается выполнение запроса добавления статье в Excel-таблицу")
         async with cls.data_locker:
             await YandexManager.download_excel_from_yandex()
             book = await ExcelManager.get_excel_book()
             await ExcelManager.add_new_article_in_excel(book, title, date, thesis, authors, keywords)
             uploaded: bool = await YandexManager.upload_excel_to_yandex()
             os.remove(settings.FILE_SAVE_PATH)
+        logger.info(f"Статья успешно добавлена в Excel-таблицу")
         return uploaded

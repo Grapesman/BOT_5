@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 from Keyboard import keyboard
 
@@ -13,6 +12,7 @@ import Function1, Function2, Graph, Old_state, Macros_citate, statistic, hirsh
 from loader import bot, scheduler, dp
 from data_manager import DataManager
 from notifications import notify_admins
+from logger import logger
 
 
 async def setup_scheduler():
@@ -47,12 +47,14 @@ async def setup_scheduler():
 
 @dp.message_handler(commands=["start"])
 async def send_welcome(message: types.Message):
+    logger.info(f"Пользователь {message.from_user.full_name} исполнил команду 'start'")
     await message.answer(text="Добро пожаловать, выберете действие ниже.", reply_markup=keyboard)
 
 
 # Команда получения информации с таблицы о заполнении
 @dp.message_handler(text=["Статус заполнения Таблицы статей"])
 async def status_states_callback(message: types.Message):
+    logger.info(f"Пользователь {message.from_user.full_name} исполнил команду 'Статус заполнения Таблицы статей'")
     await Function1.function1()
     from Function1 import all_teg, names_state
     if all_teg:
@@ -67,6 +69,7 @@ async def status_states_callback(message: types.Message):
 # Команда создания дорожной карты
 @dp.message_handler(text=["Дорожная карта написания статей"])
 async def notes_states_callback(message: types.Message):
+    logger.info(f"Пользователь {message.from_user.full_name} исполнил команду 'Дорожная карта написания статей'")
     chat_id = message.from_user.id
     await Function2.function2()
     from Function2 import check_state_in_dict, date_check_make_in_dict, date_state_3m
@@ -78,12 +81,13 @@ async def notes_states_callback(message: types.Message):
                              parse_mode='HTML')
         buf.close()
     except Exception as e:
-        print(f"Ошибка при отправке фотографии: {e}")
+        logger.error(f"Не удалось отправить фото: {e}")
 
 
 # Команда отправки ссылки на таблицу с Яндекс-диска
 @dp.message_handler(text=["Ссылка на Таблицу статей"])
 async def notes_states_callback(message: types.Message):
+    logger.info(f"Пользователь {message.from_user.full_name} исполнил команду 'Ссылка на Таблицу статей'")
     await bot.send_message(message.from_user.id,
                            "<u><b>Ссылка на заполнение Таблицы статей:</b></u>" + "\n" + "https://disk.yandex.ru/i/MYnqCNHmuaALqA",
                            parse_mode='HTML')
@@ -92,6 +96,7 @@ async def notes_states_callback(message: types.Message):
 # Команда получения информации Анализа сообщества
 @dp.message_handler(text=["Анализ деятельности сообщества"])
 async def status_states_callback(message: types.Message):
+    logger.info(f"Пользователь {message.from_user.full_name} исполнил команду 'Анализ деятельности сообщества'")
     await statistic.function_statistic()
     from statistic import checking, last_checking
     from statistic import cit_now, cit_last
@@ -143,6 +148,7 @@ async def status_states_callback(message: types.Message):
 # Команда получения информации с таблицы о просроченных статьях
 @dp.message_handler(text=["Просроченные статьи"])
 async def status_states_callback(message: types.Message):
+    logger.info(f"Пользователь {message.from_user.full_name} исполнил команду 'Просроченные статьи'")
     await Old_state.function_old_state()
     from Old_state import check_state_in_dict
     await bot.send_message(message.from_user.id,
@@ -195,9 +201,9 @@ async def send_analize_message():
         if data_dict:
             await bot.send_message(settings.TG_P5_ID,
                                     "В настоящее время, у " +  str(data_dict) + " членов НСП5 индекс Хирша превышает единицу." , parse_mode='HTML')
-        logging.info("Сообщение отправлено успешно.")
+        logger.info("Рассылка send_analize_message() произведена успешно")
     except Exception as e:
-        logging.error(f"Ошибка при отправке сообщения: {e}")
+        logger.error(f"Не удалось отправить сообщение: {e}")
 
 
 # Отправка сообщения о напоминании заполнения своего индекса ХИРШа 1 раз в квартал
@@ -205,9 +211,9 @@ async def send_hirsh_remember_message():
     try:
         await bot.send_message(settings.TG_P5_ID,
                             "Уважаемые коллеги, прошу вас обновить значение вашего индекса Хирша в таблице статей, на листе Community.")
-        logging.info("Сообщение отправлено успешно.")
+        logger.info("Рассылка send_hirsh_remember_message() произведена успешно")
     except Exception as e:
-        logging.error(f"Ошибка при отправке сообщения: {e}")
+        logger.error(f"Не удалось отправить сообщение: {e}")
 
 
 # Ежедневное сообщение в чат о просроченных статьях и статусе заполнения таблицы статей
@@ -226,9 +232,9 @@ async def send_daily_message():
         await bot.send_message(settings.TG_P5_ID,
                                "<u><b>Авторам данных статей необходимо заполнить Таблицу статей:</b></u>" + "\n - " + '\n - '.join(
                                    names_state), parse_mode='HTML')
-        logging.info("Сообщение отправлено успешно.")
+        logger.info("Рассылка send_daily_message() произведена успешно")
     except Exception as e:
-        logging.error(f"Ошибка при отправке сообщения: {e}")
+        logger.error(f"Не удалось отправить сообщение: {e}")
 
 
 #Еженедельное сообщение в чат ДК
@@ -244,10 +250,10 @@ async def send_weekly_message():
                                  parse_mode='HTML')
             buf.close()
         except Exception as e:
-            print(f"Ошибка при отправке фотографии: {e}")
-        logging.info("Сообщение отправлено успешно.")
+            logger.error(f"Не удалось отправить фото: {e}")
+        logger.info("Рассылка send_weekly_message() произведена успешно")
     except Exception as e:
-        logging.error(f"Ошибка при отправке сообщения: {e}")
+        logger.error(f"Не удалось отправить фото: {e}")
 
 
 # Команда для заполнения ТГ-формы
@@ -262,6 +268,7 @@ class ArticleForm(StatesGroup):
 
 @dp.message_handler(text=["Добавить плановую статью"])
 async def add_article_callback(message: types.Message):
+    logger.info(f"Пользователь {message.from_user.full_name} исполнил команду 'Добавить плановую статью'")
     keyboard_line_add = types.InlineKeyboardMarkup(row_width=1)
     keyboard_line_add.add(types.InlineKeyboardButton("Добавить статью в таблицу", callback_data="add_article"))
     await bot.send_message(message.from_user.id, "Нажмите кнопку, чтобы продолжить", reply_markup=keyboard_line_add)
@@ -343,6 +350,7 @@ class ArticlecitatForm(StatesGroup):
 
 @dp.message_handler(text="Подбор статей для цитирования")
 async def add_citat_pre_callback(message: types.Message):
+    logger.info(f"Пользователь {message.from_user.full_name} исполнил команду 'Подбор статей для цитирования'")
     keyboard_line_cit = types.InlineKeyboardMarkup(row_width=1)
     keyboard_line_cit.add(types.InlineKeyboardButton("Подобрать статьи для цитирования", callback_data="state_states"))
     await bot.send_message(message.from_user.id, "Нажмите кнопку, чтобы продолжить", reply_markup=keyboard_line_cit)
@@ -385,12 +393,13 @@ async def process_title(message: types.Message, state: FSMContext):
 
 
 async def on_startup(dp):
-    logging.basicConfig(level=logging.INFO)
     asyncio.create_task(setup_scheduler())
+    logger.info("Бот работает")
     await notify_admins(message="Бот работает")
 
 
 async def on_shutdown(dp):
+    logger.info("Бот остановлен")
     await notify_admins(message="Бот остановлен")
 
 
