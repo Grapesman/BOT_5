@@ -8,6 +8,7 @@ load_dotenv()
 
 YA_TOKEN = os.getenv('YA_TOKEN')
 YA_FILE_PATH = os.getenv('YA_FILE_PATH')
+YA_TABLE_URL = os.getenv('YA_TABLE_URL')
 
 TG_BOT_TOKEN = os.getenv('TG_BOT_TOKEN')
 TG_P5_ID = os.getenv('TG_P5_ID')

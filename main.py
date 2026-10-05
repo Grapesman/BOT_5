@@ -89,7 +89,7 @@ async def notes_states_callback(message: types.Message):
 async def notes_states_callback(message: types.Message):
     logger.info(f"Пользователь {message.from_user.full_name} исполнил команду 'Ссылка на Таблицу статей'")
     await bot.send_message(message.from_user.id,
-                           "<u><b>Ссылка на заполнение Таблицы статей:</b></u>" + "\n" + "https://disk.yandex.ru/i/MYnqCNHmuaALqA",
+                           "<u><b>Ссылка на заполнение Таблицы статей:</b></u>" + "\n" + settings.YA_TABLE_URL,
                            parse_mode='HTML')
 
 
