@@ -77,13 +77,9 @@ async def function1():
                 dict_name_tegs = dict(zip(list_names_input, list_tegs_input))
         return dict_name_tegs
 
-    # Функция определения количества заполненных строк. Определяем по столбцу "A" с нумерацией для листа "Каталог статей"
+    # Функция определения количества заполненных строк листа "Каталог статей"
     def how_much_string(book):
-        i = 1
-        sheet = book['Каталог статей']
-        while sheet['A' + str(i)].value is not None:
-            a.append(i)
-            i+=1
+        a.extend(range(1, book['Каталог статей'].max_row + 1))
         return
 
     # 1-Е УСЛОВИЕ. ЕСТЬ АВТОР, НО НЕТ НАЗВАНИЯ

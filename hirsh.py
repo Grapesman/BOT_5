@@ -15,7 +15,8 @@ async def hirsh_function():
     def make_dict(book):
         sheet = book['Community']
         for i in range(3, len(b)+3):
-            if sheet['K' + str(i)].value is not None and sheet['K' + str(i)].value >= 2:
+            hirsh_index = sheet['K' + str(i)].value
+            if isinstance(hirsh_index, (int, float)) and hirsh_index >= 2:
                 hirsh = sheet['B' + str(i)].value
                 list_hirsh.append(hirsh)
         return len(list_hirsh)

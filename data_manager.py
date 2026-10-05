@@ -7,6 +7,7 @@ from openpyxl import load_workbook, Workbook
 
 import settings
 from logger import logger
+from validation import catalog_validator
 
 
 class YandexManager:
@@ -103,6 +104,11 @@ class DataManager:
             await YandexManager.download_excel_from_yandex()
             book = await ExcelManager.get_excel_book()
             os.remove(settings.FILE_SAVE_PATH)
+        
+        # Валидация производит очистку строк,
+        # Не соответствующих условиям валидации
+        catalog_validator.validate(book)
+        
         logger.info(f"Данные Excel-файла получены")
         return book
 
