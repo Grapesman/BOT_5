@@ -70,12 +70,14 @@ class SheetValidator:
                 invalid_rows[row] = reasons
         return invalid_rows
 
-    def _trim_empty_tail(self, sheet: Worksheet) -> None:
-        last_row = self.first_row - 1
+    def last_data_row(self, sheet: Worksheet) -> int:
         for row in range(sheet.max_row, self.first_row - 1, -1):
             if not all(is_blank(sheet[f"{rule.column}{row}"].value) for rule in self.rules):
-                last_row = row
-                break
+                return row
+        return self.first_row - 1
+
+    def _trim_empty_tail(self, sheet: Worksheet) -> None:
+        last_row = self.last_data_row(sheet)
         if sheet.max_row > last_row:
             sheet.delete_rows(last_row + 1, sheet.max_row - last_row)
 

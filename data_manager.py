@@ -4,6 +4,7 @@ from datetime import datetime
 import asyncio
 import requests
 from openpyxl import load_workbook, Workbook
+from openpyxl.worksheet.worksheet import Worksheet
 
 import settings
 from logger import logger
@@ -74,24 +75,25 @@ class ExcelManager:
             keywords: str
     ):
         async with cls.excel_locker:
-            sheet = book['Каталог статей']
+            sheet = book[catalog_validator.sheet_name]
+            row = catalog_validator.last_data_row(sheet) + 1
 
-            string_qty = 1
-            while sheet['A' + str(string_qty + 1)].value is not None:
-                string_qty += 1
-
-            today = datetime.today()
-            today_date = today.strftime("%d.%m.%Y")
-
-            sheet['A' + str(string_qty + 1)].value = str(string_qty)
-            sheet['B' + str(string_qty + 1)].value = title
-            sheet['D' + str(string_qty + 1)].value = date
-            sheet['F' + str(string_qty + 1)].value = thesis
-            sheet['H' + str(string_qty + 1)].value = authors
-            sheet['J' + str(string_qty + 1)].value = keywords
-            sheet['C' + str(string_qty + 1)].value = datetime.strptime(today_date, "%d.%m.%Y")
+            sheet[f'A{row}'].value = cls._next_article_id(sheet)
+            sheet[f'B{row}'].value = title
+            sheet[f'C{row}'].value = datetime.today().replace(
+                hour=0, minute=0, second=0, microsecond=0
+            )
+            sheet[f'D{row}'].value = date
+            sheet[f'F{row}'].value = thesis
+            sheet[f'H{row}'].value = authors
+            sheet[f'J{row}'].value = keywords
 
             book.save(settings.FILE_SAVE_PATH)
+
+    @staticmethod
+    def _next_article_id(sheet: Worksheet) -> int:
+        ids = [int(cell.value) for cell in sheet['A'][1:] if str(cell.value).strip().isdigit()]
+        return max(ids, default=0) + 1
 
 
 class DataManager:
