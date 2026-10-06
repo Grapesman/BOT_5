@@ -29,17 +29,22 @@ def is_resource_locked(response: requests.Response) -> bool:
 
 class YandexManager:
     yandex_locker = asyncio.Lock()
+    # Прокси используется только для запросов к Яндекс-диску
+    proxies = (
+        {'http': settings.YA_REQUEST_PROXY, 'https': settings.YA_REQUEST_PROXY}
+        if settings.YA_REQUEST_PROXY else None
+    )
 
     @classmethod
     async def download_excel_from_yandex(cls) -> bool:
         async with cls.yandex_locker:
             url = f'https://cloud-api.yandex.net/v1/disk/resources/download?path={settings.YA_FILE_PATH}'
             headers = {'Authorization': f'OAuth {settings.YA_TOKEN}'}
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, proxies=cls.proxies)
 
             if response.status_code == 200:
                 download_url = response.json().get('href')
-                file_response = requests.get(download_url)
+                file_response = requests.get(download_url, proxies=cls.proxies)
                 with open(settings.FILE_SAVE_PATH, 'wb') as f:
                     f.write(file_response.content)
 
@@ -54,7 +59,7 @@ class YandexManager:
             params = {'path': settings.YA_FILE_PATH, 'overwrite': 'true'}
 
             # Запрос для получения ссылки для загрузки
-            response = requests.get(url, headers=headers, params=params)
+            response = requests.get(url, headers=headers, params=params, proxies=cls.proxies)
             if response.status_code != 200:
                 logger.error(f'Не удалось получить ссылку для загрузки: {response.text}')
                 return UploadStatus.LOCKED if is_resource_locked(response) else UploadStatus.ERROR
@@ -63,7 +68,7 @@ class YandexManager:
 
             # Загружаем файл
             with open(settings.FILE_SAVE_PATH, 'rb') as file:
-                response = requests.put(upload_url, files={'file': file})
+                response = requests.put(upload_url, files={'file': file}, proxies=cls.proxies)
             if response.status_code == 201:
                 return UploadStatus.SUCCESS
             else:
