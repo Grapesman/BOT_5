@@ -12,6 +12,7 @@ import Function1, Function2, Graph, Old_state, Macros_citate, statistic, hirsh
 from loader import bot, scheduler, dp
 from data_manager import DataManager
 from messaging import send_message
+from validation import has_letters
 from notifications import notify_admins
 from logger import logger
 
@@ -282,9 +283,18 @@ async def add_article_callback_but(callback_query: types.CallbackQuery):
     await send_message(callback_query.from_user.id, "Введите название статьи:")
 
 
+async def cancel_article_form(message: types.Message, state: FSMContext, reason: str):
+    await state.finish()
+    await send_message(message.from_user.id,
+                       reason + "\nДобавление статьи отменено. Чтобы начать заново, нажмите «Добавить плановую статью».")
+
+
 # Обработка заполнения всех полей формы:
 @dp.message_handler(state=ArticleForm.title)
 async def process_title(message: types.Message, state: FSMContext):
+    if not has_letters(message.text):
+        await cancel_article_form(message, state, "Название должно содержать хотя бы одну букву.")
+        return
     async with state.proxy() as data:
         data["title"] = message.text
     await ArticleForm.next()  # Переходим к следующему состоянию
@@ -294,17 +304,14 @@ async def process_title(message: types.Message, state: FSMContext):
 @dp.message_handler(state=ArticleForm.date)
 async def process_date(message: types.Message, state: FSMContext):
     try:
-        async with state.proxy() as data:
-            data["date"] = datetime.strptime(message.text, "%d.%m.%Y")
-        await ArticleForm.next()
-        await send_message(message.from_user.id, "Введите тезис статьи:")
+        date = datetime.strptime(message.text, "%d.%m.%Y")
     except ValueError:
-        await send_message(message.from_user.id,
-                               "Неверный формат даты. Пожалуйста, введите дату в формате ДД.ММ.ГГГГ:")
-        async with state.proxy() as data:
-            data["date"] = datetime.strptime(message.text, "%d.%m.%Y")
-        await ArticleForm.next()
-        await send_message(message.from_user.id, "Введите тезис статьи:")
+        await cancel_article_form(message, state, "Неверный формат даты: ожидается ДД.ММ.ГГГГ.")
+        return
+    async with state.proxy() as data:
+        data["date"] = date
+    await ArticleForm.next()
+    await send_message(message.from_user.id, "Введите тезис статьи:")
 
 
 @dp.message_handler(state=ArticleForm.thesis)
@@ -325,6 +332,9 @@ async def process_keywords(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=ArticleForm.authors)
 async def process_authors(message: types.Message, state: FSMContext):
+    if not has_letters(message.text):
+        await cancel_article_form(message, state, "Имена авторов должны содержать хотя бы одну букву.")
+        return
     async with state.proxy() as data:
         data["authors"] = message.text
     await message.answer("Происходит запись данных")
