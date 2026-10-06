@@ -10,7 +10,7 @@ import asyncio
 import settings
 import Function1, Function2, Graph, Old_state, Macros_citate, statistic, hirsh
 from loader import bot, scheduler, dp
-from data_manager import DataManager
+from data_manager import DataManager, UploadStatus
 from messaging import send_message
 from validation import has_letters
 from notifications import notify_admins
@@ -339,19 +339,25 @@ async def process_authors(message: types.Message, state: FSMContext):
         data["authors"] = message.text
     await message.answer("Происходит запись данных")
 
-    uploaded: bool = await DataManager.add_new_article_in_yandex(
-        data["title"],
-        data["date"],
-        data["thesis"],
-        data["authors"],
-        data["keywords"]
-    )
+    try:
+        upload_status = await DataManager.add_new_article_in_yandex(
+            data["title"],
+            data["date"],
+            data["thesis"],
+            data["authors"],
+            data["keywords"]
+        )
+    except Exception as e:
+        logger.error(f"Не удалось добавить статью: {e}")
+        upload_status = UploadStatus.ERROR
     await state.finish()
 
-    if uploaded:
+    if upload_status == UploadStatus.SUCCESS:
         await message.answer("Данные успешно записаны на Яндекс Диск")
+    elif upload_status == UploadStatus.LOCKED:
+        await message.answer("Добавление статьи сейчас невозможно. Вероятно, кто-то другой редактирует таблицу")
     else:
-        await message.answer("Ошибка записи данных на Яндекс Диск. Попробуйте повторить попытку позже.")
+        await message.answer("Добавление статьи сейчас невозможно. Попробуйте позже")
 
 
 # Команда для выполнения подбора статей для цитирования

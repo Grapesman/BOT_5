@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from enum import Enum
 
 import asyncio
 import requests
@@ -9,6 +10,21 @@ from openpyxl.worksheet.worksheet import Worksheet
 import settings
 from logger import logger
 from validation import catalog_validator
+
+
+class UploadStatus(Enum):
+    SUCCESS = "success"
+    LOCKED = "locked"
+    ERROR = "error"
+
+
+def is_resource_locked(response: requests.Response) -> bool:
+    if response.status_code == 423:
+        return True
+    try:
+        return response.json().get('error') == 'DiskResourceLockedError'
+    except ValueError:
+        return False
 
 
 class YandexManager:
@@ -31,7 +47,7 @@ class YandexManager:
                 raise Exception(f'Ошибка при получении файла: {response.text}')
 
     @classmethod
-    async def upload_excel_to_yandex(cls) -> bool:
+    async def upload_excel_to_yandex(cls) -> UploadStatus:
         async with cls.yandex_locker:
             url = 'https://cloud-api.yandex.net/v1/disk/resources/upload'
             headers = {'Authorization': f'OAuth {settings.YA_TOKEN}'}
@@ -40,8 +56,8 @@ class YandexManager:
             # Запрос для получения ссылки для загрузки
             response = requests.get(url, headers=headers, params=params)
             if response.status_code != 200:
-                logger.error(f'Не удалось получить ссылку для загрузки: {response.json()}')
-                return False
+                logger.error(f'Не удалось получить ссылку для загрузки: {response.text}')
+                return UploadStatus.LOCKED if is_resource_locked(response) else UploadStatus.ERROR
 
             upload_url = response.json().get('href')
 
@@ -49,10 +65,10 @@ class YandexManager:
             with open(settings.FILE_SAVE_PATH, 'rb') as file:
                 response = requests.put(upload_url, files={'file': file})
             if response.status_code == 201:
-                return True
+                return UploadStatus.SUCCESS
             else:
-                logger.error(f'Не удалось загрузить файл: {response.json()}')
-                return False
+                logger.error(f'Не удалось загрузить файл: {response.text}')
+                return UploadStatus.LOCKED if is_resource_locked(response) else UploadStatus.ERROR
 
 
 class ExcelManager:
@@ -122,13 +138,14 @@ class DataManager:
             thesis: str,
             authors: str,
             keywords: str
-    ):
+    ) -> UploadStatus:
         logger.info(f"Начинается выполнение запроса добавления статье в Excel-таблицу")
         async with cls.data_locker:
             await YandexManager.download_excel_from_yandex()
             book = await ExcelManager.get_excel_book()
             await ExcelManager.add_new_article_in_excel(book, title, date, thesis, authors, keywords)
-            uploaded: bool = await YandexManager.upload_excel_to_yandex()
+            upload_status = await YandexManager.upload_excel_to_yandex()
             os.remove(settings.FILE_SAVE_PATH)
-        logger.info(f"Статья успешно добавлена в Excel-таблицу")
-        return uploaded
+        if upload_status == UploadStatus.SUCCESS:
+            logger.info(f"Статья успешно добавлена в Excel-таблицу")
+        return upload_status
