@@ -19,6 +19,7 @@ from logger import logger
 
 async def setup_scheduler():
     """Настройка и запуск планировщика"""
+    scheduler.add_job(DataManager.refresh_read_table, 'interval', minutes=settings.YA_REFRESH_INTERVAL_MINUTES)
     scheduler.add_job(send_weekly_message, 'cron', day_of_week='mon', hour=10, minute=00)
     scheduler.add_job(send_daily_message, 'cron', day_of_week='mon', hour=11, minute=00)
     scheduler.add_job(
@@ -410,6 +411,7 @@ async def process_title(message: types.Message, state: FSMContext):
 
 
 async def on_startup(dp):
+    await DataManager.update_read_table()
     asyncio.create_task(setup_scheduler())
     logger.info("Бот работает")
     await notify_admins(message="Бот работает")
