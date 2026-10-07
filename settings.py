@@ -14,6 +14,7 @@ YA_REQUEST_PROXY = os.getenv('YA_REQUEST_PROXY') or None
 YA_REFRESH_INTERVAL_MINUTES = int(os.getenv('YA_REFRESH_INTERVAL_MINUTES') or 5)
 
 TG_BOT_TOKEN = os.getenv('TG_BOT_TOKEN')
+TG_REQUEST_PROXY = os.getenv('TG_REQUEST_PROXY') or None
 TG_P5_ID = os.getenv('TG_P5_ID')
 TG_NOTIFICATION_IDS = [i.strip() for i in os.getenv('TG_NOTIFICATION_IDS').split(",")]
 
