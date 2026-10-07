@@ -1,9 +1,10 @@
+import json
 import os
 from datetime import datetime
 from enum import Enum
 
+import aiohttp
 import asyncio
-import requests
 from openpyxl import load_workbook, Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
@@ -18,38 +19,43 @@ class UploadStatus(Enum):
     ERROR = "error"
 
 
-def is_resource_locked(response: requests.Response) -> bool:
-    if response.status_code == 423:
+def is_resource_locked(status: int, text: str) -> bool:
+    if status == 423:
         return True
     try:
-        return response.json().get('error') == 'DiskResourceLockedError'
-    except ValueError:
+        return json.loads(text).get('error') == 'DiskResourceLockedError'
+    except (ValueError, AttributeError):
         return False
 
 
 class YandexManager:
     yandex_locker = asyncio.Lock()
     # Прокси используется только для запросов к Яндекс-диску
-    proxies = (
-        {'http': settings.YA_REQUEST_PROXY, 'https': settings.YA_REQUEST_PROXY}
-        if settings.YA_REQUEST_PROXY else None
-    )
+    proxy = settings.YA_REQUEST_PROXY
+
+    @staticmethod
+    def _session() -> aiohttp.ClientSession:
+        # trust_env=True — как и requests, учитываем прокси из переменных окружения
+        return aiohttp.ClientSession(trust_env=True)
 
     @classmethod
     async def download_excel_from_yandex(cls) -> bool:
         async with cls.yandex_locker:
-            url = f'https://cloud-api.yandex.net/v1/disk/resources/download?path={settings.YA_FILE_PATH}'
+            url = 'https://cloud-api.yandex.net/v1/disk/resources/download'
             headers = {'Authorization': f'OAuth {settings.YA_TOKEN}'}
-            response = requests.get(url, headers=headers, proxies=cls.proxies)
+            params = {'path': settings.YA_FILE_PATH}
 
-            if response.status_code == 200:
-                download_url = response.json().get('href')
-                file_response = requests.get(download_url, proxies=cls.proxies)
-                with open(settings.FILE_SAVE_PATH, 'wb') as f:
-                    f.write(file_response.content)
+            async with cls._session() as session:
+                async with session.get(url, headers=headers, params=params, proxy=cls.proxy) as response:
+                    if response.status != 200:
+                        raise Exception(f'Ошибка при получении файла: {await response.text()}')
+                    download_url = (await response.json(content_type=None)).get('href')
 
-            else:
-                raise Exception(f'Ошибка при получении файла: {response.text}')
+                async with session.get(download_url, proxy=cls.proxy) as file_response:
+                    content = await file_response.read()
+
+            with open(settings.FILE_SAVE_PATH, 'wb') as f:
+                f.write(content)
 
     @classmethod
     async def upload_excel_to_yandex(cls) -> UploadStatus:
@@ -58,22 +64,27 @@ class YandexManager:
             headers = {'Authorization': f'OAuth {settings.YA_TOKEN}'}
             params = {'path': settings.YA_FILE_PATH, 'overwrite': 'true'}
 
-            # Запрос для получения ссылки для загрузки
-            response = requests.get(url, headers=headers, params=params, proxies=cls.proxies)
-            if response.status_code != 200:
-                logger.error(f'Не удалось получить ссылку для загрузки: {response.text}')
-                return UploadStatus.LOCKED if is_resource_locked(response) else UploadStatus.ERROR
+            async with cls._session() as session:
+                # Запрос для получения ссылки для загрузки
+                async with session.get(url, headers=headers, params=params, proxy=cls.proxy) as response:
+                    if response.status != 200:
+                        text = await response.text()
+                        logger.error(f'Не удалось получить ссылку для загрузки: {text}')
+                        return UploadStatus.LOCKED if is_resource_locked(response.status, text) else UploadStatus.ERROR
+                    upload_url = (await response.json(content_type=None)).get('href')
 
-            upload_url = response.json().get('href')
+                # Загружаем файл
+                with open(settings.FILE_SAVE_PATH, 'rb') as file:
+                    content = file.read()
+                form = aiohttp.FormData()
+                form.add_field('file', content, filename=os.path.basename(settings.FILE_SAVE_PATH))
 
-            # Загружаем файл
-            with open(settings.FILE_SAVE_PATH, 'rb') as file:
-                response = requests.put(upload_url, files={'file': file}, proxies=cls.proxies)
-            if response.status_code == 201:
-                return UploadStatus.SUCCESS
-            else:
-                logger.error(f'Не удалось загрузить файл: {response.text}')
-                return UploadStatus.LOCKED if is_resource_locked(response) else UploadStatus.ERROR
+                async with session.put(upload_url, data=form, proxy=cls.proxy) as response:
+                    if response.status == 201:
+                        return UploadStatus.SUCCESS
+                    text = await response.text()
+                    logger.error(f'Не удалось загрузить файл: {text}')
+                    return UploadStatus.LOCKED if is_resource_locked(response.status, text) else UploadStatus.ERROR
 
 
 class ExcelManager:

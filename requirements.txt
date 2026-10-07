@@ -1,5 +1,5 @@
 aiogram==2.20
-requests==2.32.4
+aiohttp==3.8.6
 
 APScheduler==3.11.0
 
