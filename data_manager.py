@@ -34,6 +34,8 @@ class YandexManager:
     yandex_locker = asyncio.Lock()
     # Прокси используется только для запросов к Яндекс-диску
     proxy = settings.YA_REQUEST_PROXY
+    # Максимальное время скачивания таблицы, в секундах
+    download_timeout = 120
 
     @staticmethod
     def _session() -> aiohttp.ClientSession:
@@ -43,22 +45,29 @@ class YandexManager:
     @classmethod
     async def download_excel_from_yandex(cls, path: Path):
         async with cls.yandex_locker:
-            url = 'https://cloud-api.yandex.net/v1/disk/resources/download'
-            headers = {'Authorization': f'OAuth {settings.YA_TOKEN}'}
-            params = {'path': settings.YA_FILE_PATH}
-
-            async with cls._session() as session:
-                async with session.get(url, headers=headers, params=params, proxy=cls.proxy) as response:
-                    if response.status != 200:
-                        raise Exception(f'Ошибка при получении файла: {await response.text()}')
-                    download_url = (await response.json(content_type=None)).get('href')
-
-                async with session.get(download_url, proxy=cls.proxy) as file_response:
-                    file_response.raise_for_status()
-                    content = await file_response.read()
+            try:
+                content = await asyncio.wait_for(cls._download_content(), timeout=cls.download_timeout)
+            except asyncio.TimeoutError:
+                raise Exception(f'Превышено время скачивания таблицы ({cls.download_timeout} с)')
 
             with open(path, 'wb') as f:
                 f.write(content)
+
+    @classmethod
+    async def _download_content(cls) -> bytes:
+        url = 'https://cloud-api.yandex.net/v1/disk/resources/download'
+        headers = {'Authorization': f'OAuth {settings.YA_TOKEN}'}
+        params = {'path': settings.YA_FILE_PATH}
+
+        async with cls._session() as session:
+            async with session.get(url, headers=headers, params=params, proxy=cls.proxy) as response:
+                if response.status != 200:
+                    raise Exception(f'Ошибка при получении файла: {await response.text()}')
+                download_url = (await response.json(content_type=None)).get('href')
+
+            async with session.get(download_url, proxy=cls.proxy) as file_response:
+                file_response.raise_for_status()
+                return await file_response.read()
 
     @classmethod
     async def upload_excel_to_yandex(cls, path: Path) -> UploadStatus:
